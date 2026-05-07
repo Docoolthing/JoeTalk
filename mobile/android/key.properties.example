@@ -1,0 +1,8 @@
+# Copy to key.properties (gitignored) in this directory and fill in values
+# to sign release AAB / APK. Paths are relative to android/app/ unless absolute.
+# Generate a keystore: keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# storePassword=yourKeystorePassword
+# keyPassword=yourKeyPassword
+# keyAlias=upload
+# storeFile=../upload-keystore.jks

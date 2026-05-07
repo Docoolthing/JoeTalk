@@ -1,0 +1,22 @@
+{"sessionId":"224550","timestamp":1777239313521,"location":"ConversationPage","message":"Debug log enabled from UI","hypothesisId":"B","data":null}
+{"sessionId":"224550","timestamp":1777239348891,"location":"ConversationController","message":"stopConversation","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777239348891,"location":"TtsService","message":"TTS stop","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777239348890,"location":"ConversationController","message":"toggleConversation: running=true","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248641836,"location":"ConversationController","message":"toggleConversation: running=false","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248641839,"location":"ConversationController","message":"startConversation: listening (locale en_US)","hypothesisId":"A","data":{"backendBaseUrl":"http://localhost:3000"}}
+{"sessionId":"224550","timestamp":1777248645494,"location":"SttService","message":"STT listen start","hypothesisId":"A","data":{"localeId":"en_US"}}
+{"sessionId":"224550","timestamp":1777248645534,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"listening"}}
+{"sessionId":"224550","timestamp":1777248650554,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"notListening"}}
+{"sessionId":"224550","timestamp":1777248650556,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"done"}}
+{"sessionId":"224550","timestamp":1777248671731,"location":"ConversationController","message":"toggleConversation: running=true","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248671733,"location":"TtsService","message":"TTS stop","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248671732,"location":"ConversationController","message":"stopConversation","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248695150,"location":"ConversationController","message":"toggleConversation: running=false","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248695151,"location":"ConversationController","message":"startConversation: listening (locale en_US)","hypothesisId":"A","data":{"backendBaseUrl":"http://localhost:3000"}}
+{"sessionId":"224550","timestamp":1777248695555,"location":"SttService","message":"STT listen start","hypothesisId":"A","data":{"localeId":"en_US"}}
+{"sessionId":"224550","timestamp":1777248695605,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"listening"}}
+{"sessionId":"224550","timestamp":1777248700605,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"notListening"}}
+{"sessionId":"224550","timestamp":1777248700607,"location":"SttService","message":"STT status","hypothesisId":"A","data":{"status":"done"}}
+{"sessionId":"224550","timestamp":1777248706851,"location":"ConversationController","message":"toggleConversation: running=true","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248706852,"location":"TtsService","message":"TTS stop","hypothesisId":"A","data":null}
+{"sessionId":"224550","timestamp":1777248706852,"location":"ConversationController","message":"stopConversation","hypothesisId":"A","data":null}

@@ -1,0 +1,16 @@
+{
+  "name": "joe-talk",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:mobile": "echo \"Run mobile manually with Flutter: cd mobile && flutter pub get && flutter run\"",
+    "dev": "npm --prefix backend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "verify:mvp": "node scripts/verify-mvp.mjs",
+    "build": "npm --prefix backend run build",
+    "build:backend": "npm --prefix backend run build",
+    "start:backend": "npm --prefix backend run start",
+    "install:backend": "npm --prefix backend install",
+    "setup": "npm run install:backend"
+  }
+}

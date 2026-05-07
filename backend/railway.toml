@@ -1,0 +1,11 @@
+# https://docs.railway.com/reference/config-as-code
+# In Railway → service → Settings: set Root directory to `backend` for a monorepo.
+
+[build]
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"

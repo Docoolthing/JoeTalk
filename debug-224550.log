@@ -1,0 +1,18 @@
+{"sessionId":"224550","timestamp":1777240648506,"location":"ConversationController","message":"TTS complete, resuming listen","hypothesisId":"A","data":null}
+":"2"}}
+yLength":"14"}}
+/chat"}}
+/127.0.0.1:9"}}
+{"sessionId":"224550","timestamp":1777240668916,"location":"ConversationController","message":"TTS complete, resuming listen","hypothesisId":"A","data":null}
+":"2"}}
+yLength":"14"}}
+/chat"}}
+/127.0.0.1:9"}}
+{"sessionId":"224550","timestamp":1777241288403,"location":"ConversationController","message":"backend reply received","hypothesisId":"A","data":{"replyLength":"5"}}
+yLength":"17"}}
+/chat"}}
+/127.0.0.1:9"}}
+{"sessionId":"224550","timestamp":1777248882275,"location":"ConversationController","message":"TTS complete, resuming listen","hypothesisId":"A","data":null}
+a":{"replyLength":"5","replyText":"Great"}}
+yText":"Great"}}
+"studentMessage":"Hello"}}
