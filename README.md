@@ -15,7 +15,7 @@ Chinese voice tutor mobile app using Flutter + Gemini (through a secure backend 
    - `npm --prefix backend install` (or `cd backend && npm install`)
    - `npm --prefix backend run dev`
 
-Backend runs on `http://localhost:3000`.
+The server binds to `process.env.PORT` if set; otherwise it uses the dev fallback in `backend/src/server.ts` (see `listenFallback`).
 
 ## Mobile (local)
 
@@ -24,26 +24,55 @@ Backend runs on `http://localhost:3000`.
    - `flutter pub get`
    - `flutter run`
 
-Android emulator talks to the dev machine backend via `http://10.0.2.2:3000` (see `mobile/lib/features/conversation/conversation_page.dart` defaults). Use `--dart-define=BACKEND_BASE_URL=...` to override.
+Android emulator → host machine uses the private alias in `conversation_page.dart`. Override the full URL with `--dart-define=BACKEND_BASE_URL=...` or only the host port with `--dart-define=BACKEND_DEV_PORT=...` (must match your local Node listen port from `server.ts`).
 
-## Railway (host the backend)
+## Railway: two services (same repo)
 
-The Express API is ready to run on [Railway](https://railway.com/).
+Use **one Railway project** and **two services**, both pointing at this repository:
 
-1. Push this repository to GitHub (or connect Railway to your Git provider).
-2. **New project → Deploy from GitHub** (or the Railway CLI) and add a service.
-3. In the service **Settings → Root directory**, set **`backend`**. (Or deploy only the `backend` folder; the `backend/railway.toml` file configures build and health checks.)
-4. **Variables** (at minimum):
-   - `GEMINI_API_KEY` — your Google AI Studio / Gemini key (mark as **secret**).
-5. **Deploy** and wait for the build (`npm ci && npm run build`) and start (`npm start`). Railway sets **`PORT`**; do not set it manually in production.
-6. Open the generated public URL; **`GET /health`** should return `{"ok":true,...}` and **`POST /api/chat`** with body `{"studentMessage":"hi"}` should return `{"reply":"..."}` (requires a valid `GEMINI_API_KEY` or `OPENROUTER_*` as in `gemini_service.ts`).
+| Service | Root directory | Config |
+|--------|----------------|--------|
+| **API** | `backend` | `backend/railway.toml` — Nixpacks, `npm run build` / `npm start` |
+| **Web** | `mobile` | `mobile/railway.toml` — Dockerfile, Flutter web + `serve` |
 
-**Mobile app against production:** the release build defaults to `https` and blocks cleartext. Point the app at your Railway **HTTPS** base URL (no trailing slash), for example:
+Each service gets its own **`https://…up.railway.app`** URL. Clients use that **HTTPS origin only** (no host port in the URL). Railway sets **`PORT`** inside each container; do **not** set **`PORT`** in the dashboard.
+
+### Deploy the API
+
+1. **New project** on [Railway](https://railway.com/) → **Deploy from GitHub** → add a service.
+2. **Settings → Root directory:** `backend`.
+3. **Variables:** at least `GEMINI_API_KEY` (secret).
+4. Optional: `ALLOWED_ORIGINS=https://your-web.up.railway.app` (comma-separated; omit for permissive CORS while testing).
+5. Deploy → **Networking → public URL** → save as **`API_URL`** (no trailing slash).
+
+Verify: `GET <API_URL>/health`, `POST <API_URL>/api/chat` with `{"studentMessage":"hi"}`.
+
+### Deploy the Flutter web app
+
+1. **Add service** (same project) → same repository.
+2. **Root directory:** `mobile`.
+3. **Variables:** **`BACKEND_BASE_URL`** = **`API_URL`** (required at Docker **build** time).
+4. Deploy → public URL for the site. If you use `ALLOWED_ORIGINS` on the API, set it to this web URL and redeploy the API.
+
+Templates: `backend/.env.example`, `mobile/env.deploy.example`.
+
+### Local Flutter web (no Docker)
 
 ```bash
 cd mobile
-flutter run --dart-define=BACKEND_BASE_URL=https://your-service.up.railway.app
-flutter build appbundle --dart-define=BACKEND_BASE_URL=https://your-service.up.railway.app
+flutter build web --release --dart-define=BACKEND_BASE_URL=https://YOUR-API.up.railway.app
 ```
 
-Use the same pattern for iOS, APK, and web. Details: `backend/README.md`, `mobile/README.md`, `mobile/android/README.md` (cleartext / store builds).
+### One Railway service for both
+
+Possible with a custom image (e.g. Express serving `build/web`), but not how this repo is set up out of the box.
+
+**Mobile / store builds** use **`API_URL`** via `--dart-define`:
+
+```bash
+cd mobile
+flutter run --dart-define=BACKEND_BASE_URL=https://your-api.up.railway.app
+flutter build appbundle --dart-define=BACKEND_BASE_URL=https://your-api.up.railway.app
+```
+
+More detail: `backend/README.md`, `mobile/README.md`, `mobile/android/README.md`.

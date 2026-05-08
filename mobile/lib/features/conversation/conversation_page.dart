@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -35,20 +36,30 @@ class ConversationPage extends StatefulWidget {
 class _ConversationPageState extends State<ConversationPage> {
   late final ConversationController _controller;
   static const _backendFromEnv = String.fromEnvironment('BACKEND_BASE_URL');
+  /// Local emulator/host port when `BACKEND_BASE_URL` is unset. Must match `listenFallback` in `backend/src/server.ts` unless you override.
+  static const _backendDevPort =
+      String.fromEnvironment('BACKEND_DEV_PORT', defaultValue: '3000');
 
   String get _backendBaseUrl {
     if (_backendFromEnv.isNotEmpty) {
       return _backendFromEnv;
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3000';
+      return 'http://10.0.2.2:$_backendDevPort';
     }
-    return 'http://localhost:3000';
+    return 'http://127.0.0.1:$_backendDevPort';
   }
 
   @override
   void initState() {
     super.initState();
+    if (kIsWeb && _backendFromEnv.isEmpty) {
+      debugPrint(
+        'JoeTalk: BACKEND_BASE_URL was not set at build time. Production web '
+        'must use --dart-define=BACKEND_BASE_URL=https://<your-api>.up.railway.app '
+        '(Railway web service variable BACKEND_BASE_URL for Docker builds).',
+      );
+    }
     DebugLogService.instance.addListener(_onDebugLogServiceChanged);
     _controller = ConversationController(
       sttService: SttService(),

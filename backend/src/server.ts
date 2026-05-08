@@ -5,11 +5,23 @@ import express from 'express';
 
 import { chatRouter } from './routes/chat.js';
 
+/** Only when `PORT` is unset (`npm run dev` locally). Railway always injects `PORT`. */
+const listenFallback = 3000;
+
 const app = express();
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || listenFallback;
 const host = process.env.HOST ?? '0.0.0.0';
 
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+if (allowedOrigins.length > 0) {
+  app.use(cors({ origin: allowedOrigins }));
+} else {
+  app.use(cors());
+}
 app.use(express.json());
 app.use('/api', chatRouter);
 

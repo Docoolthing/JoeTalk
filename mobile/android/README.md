@@ -32,7 +32,7 @@ flutter run
 
 4. **Backend URL**  
    - Release sets `usesCleartextTraffic="false"`; use an **HTTPS** production API, or the app will not be able to call a plain `http://` host.  
-   - Debug / profile allow cleartext so local HTTP (e.g. `10.0.2.2:3000`) still works.  
+   - Debug / profile allow cleartext so a local HTTP backend (emulator `10.0.2.2` → host) still works. Match `--dart-define=BACKEND_DEV_PORT` to your Node listen port if needed.  
    - You can set `BACKEND_BASE_URL` at build time:  
      `flutter build appbundle --dart-define=BACKEND_BASE_URL=https://api.example.com`
 

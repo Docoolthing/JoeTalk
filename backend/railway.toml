@@ -1,5 +1,6 @@
 # https://docs.railway.com/reference/config-as-code
-# In Railway → service → Settings: set Root directory to `backend` for a monorepo.
+# Railway project → Service A (API): Root directory = `backend`
+# Same repo → Service B (web): Root directory = `mobile` (see mobile/railway.toml)
 
 [build]
 buildCommand = "npm run build"
