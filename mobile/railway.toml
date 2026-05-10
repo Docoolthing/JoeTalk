@@ -2,7 +2,10 @@
 # In Railway → this *web* service → Settings: Root directory = `mobile`
 #
 # Variables (runtime — required when the container starts):
-#   BACKEND_BASE_URL — production API, e.g. https://jobtalk-api.up.railway.app (trailing / OK)
+#   BACKEND_BASE_URL — production API, e.g. https://jobtalk-api-production.up.railway.app (trailing / OK)
+#   This MUST be the API service's *public* https URL. Do NOT use *.railway.internal here:
+#   that hostname only resolves for service-to-service traffic inside Railway, and the web
+#   client runs in the user's browser on the public internet.
 
 [build]
 builder = "DOCKERFILE"

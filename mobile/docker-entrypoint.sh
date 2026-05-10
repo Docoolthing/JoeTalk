@@ -8,7 +8,7 @@ set -e
 # Flutter app POST to a garbage URL and surface "服務位址：<UNKNOWN>" in the UI.
 url="${BACKEND_BASE_URL:-}"
 if [ -z "$url" ]; then
-  echo "JoeTalk web: BACKEND_BASE_URL is unset. Set it on the Railway *web* service (e.g. https://jobtalk-api.up.railway.app)." >&2
+  echo "JoeTalk web: BACKEND_BASE_URL is unset. Set it on the Railway *web* service (e.g. https://jobtalk-api-production.up.railway.app)." >&2
   exit 1
 fi
 case "$url" in
@@ -16,7 +16,7 @@ case "$url" in
   *)
     echo "JoeTalk web: BACKEND_BASE_URL is not a valid URL: '$url'" >&2
     echo "  - If you used a Railway reference like \${{API.RAILWAY_PUBLIC_DOMAIN}}, confirm that service exists and is deployed." >&2
-    echo "  - The value must start with http:// or https:// (e.g. https://jobtalk-api.up.railway.app)." >&2
+    echo "  - The value must start with http:// or https:// (e.g. https://jobtalk-api-production.up.railway.app)." >&2
     exit 1
     ;;
 esac
