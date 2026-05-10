@@ -1,18 +1,17 @@
 import 'dart:js_interop';
 
-extension type _GlobalConfig(JSObject _) implements JSObject {
-  @JS('__JOETALK_BACKEND_BASE_URL__')
-  external JSString? get joetalkBackendBaseUrl;
-}
+/// Reads [web/runtime-config.js], which sets `globalThis.__JOETALK_BACKEND_BASE_URL__`.
+///
+/// Uses a single dotted `@JS` binding so the compiler emits a direct property read on
+/// `globalThis` (avoids extension-type projection edge cases on some web targets).
+@JS('globalThis.__JOETALK_BACKEND_BASE_URL__')
+external JSString? get _joetalkBackendBaseUrlJs;
 
-@JS('globalThis')
-external _GlobalConfig get _globalThis;
-
-/// Backend URL injected via [web/runtime-config.js] (e.g. Docker entrypoint).
 String? readRuntimeBackendBaseUrl() {
-  final s = _globalThis.joetalkBackendBaseUrl?.toDart ?? '';
-  if (s.isEmpty) {
+  final j = _joetalkBackendBaseUrlJs;
+  if (j == null) {
     return null;
   }
-  return s;
+  final s = j.toDart;
+  return s.isEmpty ? null : s;
 }
