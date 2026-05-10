@@ -25,6 +25,12 @@ class ChatMessage {
   final String text;
 }
 
+class _CloudTtsAudio {
+  const _CloudTtsAudio({required this.bytes, required this.mimeType});
+  final Uint8List bytes;
+  final String mimeType;
+}
+
 class ConversationController extends ChangeNotifier {
   /// Web: Simplified Chinese STT/TTS and API language (zh-CN). Native: English.
   static String get _speechLocaleId => kIsWeb ? 'zh-CN' : 'en_US';
@@ -149,7 +155,7 @@ class ConversationController extends ChangeNotifier {
       _state = ConversationState.speaking;
       _statusText = '正在播報回覆…';
       DebugLogService.instance.log(
-        'Backend text received — starting TTS',
+        'Backend text received — fetching cloud TTS',
         location: 'ConversationController',
         data: {
           'replyLength': reply.length.toString(),
@@ -158,7 +164,16 @@ class ConversationController extends ChangeNotifier {
         hypothesisId: 'A',
       );
       notifyListeners();
-      await _ttsService.speak(reply);
+
+      // Best-effort cloud TTS. If it fails (503 not configured, 502 auth, network
+      // error, etc.) fall back to on-device flutter_tts so the user always hears
+      // a reply.
+      final cloud = await _fetchCloudTts(reply);
+      if (cloud != null) {
+        await _ttsService.speakBytes(cloud.bytes, mimeType: cloud.mimeType);
+      } else {
+        await _ttsService.speak(reply);
+      }
     } catch (e) {
       DebugLogService.instance.log(
         'backend or TTS chain failed',
@@ -259,6 +274,71 @@ class ConversationController extends ChangeNotifier {
       hypothesisId: 'A',
     );
     return reply;
+  }
+
+  /// Best-effort: returns mp3/wav bytes from `POST /api/tts`, or `null` on any
+  /// failure. The caller should fall back to on-device synthesis.
+  Future<_CloudTtsAudio?> _fetchCloudTts(String text) async {
+    final uri = Uri.parse('$_backendBaseUrl/api/tts');
+    try {
+      final response = await _httpClient
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'text': text,
+              'language': _apiLanguage,
+            }),
+          )
+          .timeout(const Duration(seconds: 20));
+
+      if (response.statusCode != 200) {
+        DebugLogService.instance.log(
+          'Cloud TTS unavailable — falling back to on-device synthesis',
+          location: 'ConversationController._fetchCloudTts',
+          data: {
+            'status': response.statusCode.toString(),
+            'bodyPreview': clipDebugText(response.body, maxChars: 320),
+          },
+          hypothesisId: 'A',
+        );
+        return null;
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final audioBase64 = data['audioBase64'] as String?;
+      final mimeType = (data['mimeType'] as String?) ?? 'audio/mpeg';
+      if (audioBase64 == null || audioBase64.isEmpty) {
+        DebugLogService.instance.log(
+          'Cloud TTS response missing audioBase64',
+          location: 'ConversationController._fetchCloudTts',
+          hypothesisId: 'A',
+        );
+        return null;
+      }
+
+      final bytes = base64Decode(audioBase64);
+      DebugLogService.instance.log(
+        'Cloud TTS audio received',
+        location: 'ConversationController._fetchCloudTts',
+        data: {
+          'bytesLen': bytes.length.toString(),
+          'mimeType': mimeType,
+          'voice': (data['voice'] as String?) ?? '',
+          'model': (data['model'] as String?) ?? '',
+        },
+        hypothesisId: 'A',
+      );
+      return _CloudTtsAudio(bytes: bytes, mimeType: mimeType);
+    } catch (e) {
+      DebugLogService.instance.log(
+        'Cloud TTS request failed — falling back to on-device synthesis',
+        location: 'ConversationController._fetchCloudTts',
+        data: {'error': e.toString()},
+        hypothesisId: 'A',
+      );
+      return null;
+    }
   }
 
   Future<void> _handleTtsComplete() async {

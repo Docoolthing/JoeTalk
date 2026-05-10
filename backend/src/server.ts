@@ -4,6 +4,7 @@ import cors from 'cors';
 import express from 'express';
 
 import { chatRouter } from './routes/chat.js';
+import { ttsRouter } from './routes/tts.js';
 
 /** Local dev only when `PORT` is unset (`npm run dev`). On Railway, always bind to `process.env.PORT`. */
 const localDevPortFallback = 3000;
@@ -24,6 +25,7 @@ if (allowedOrigins.length > 0) {
 }
 app.use(express.json());
 app.use('/api', chatRouter);
+app.use('/api', ttsRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'joe-talk-backend' });

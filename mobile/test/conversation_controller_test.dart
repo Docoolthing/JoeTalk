@@ -62,15 +62,28 @@ void main() {
 
     client = MockClient((request) async {
       expect(request.method, 'POST');
-      expect(request.url.toString(), 'http://127.0.0.1:9/api/chat');
-      final body = jsonDecode(request.body) as Map<String, dynamic>;
-      expect(body['studentMessage'], 'Hello');
-      expect(body['language'], 'en');
-      return http.Response(
-        jsonEncode({'reply': 'Great'}),
-        200,
-        headers: {'content-type': 'application/json'},
-      );
+      final url = request.url.toString();
+      if (url == 'http://127.0.0.1:9/api/chat') {
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body['studentMessage'], 'Hello');
+        expect(body['language'], 'en');
+        return http.Response(
+          jsonEncode({'reply': 'Great'}),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      // Cloud TTS is best-effort; returning 503 exercises the fallback path.
+      if (url == 'http://127.0.0.1:9/api/tts') {
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body['text'], 'Great');
+        return http.Response(
+          jsonEncode({'error': 'TTS is not configured'}),
+          503,
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      fail('unexpected request: $url');
     });
 
     final controller = ConversationController(
