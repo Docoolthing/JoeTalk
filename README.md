@@ -65,6 +65,12 @@ cd mobile
 flutter build web --release --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app
 ```
 
+### Troubleshooting Railway
+
+- **Status bar shows `服務位址：<UNKNOWN>` and backend never responds.** The web service's `BACKEND_BASE_URL` is set to a Railway service reference (e.g. `https://${{api.RAILWAY_PUBLIC_DOMAIN}}`) whose target service does not exist or is renamed. Railway substitutes the literal placeholder `<UNKNOWN>`. Fix in the web service's **Variables**: either set `BACKEND_BASE_URL` to a literal HTTPS URL like `https://jobtalk-api.up.railway.app`, or correct the referenced service name. After the next deploy, `https://<web>.up.railway.app/runtime-config.js` should contain your real URL. The container entrypoint now rejects empty / non-URL values up front so this fails fast instead of shipping a broken site.
+- **API hostname returns 404 from Railway's edge.** That's "no service answering on this hostname", not your app. Check the API service has a healthy latest deploy and a public domain attached, then copy that exact `*.up.railway.app` URL into the web service's `BACKEND_BASE_URL`. Verify with `curl https://<api>.up.railway.app/health` → `{"ok":true,…}`.
+- **`/api/chat` returns 502 with `Tutor API key rejected`.** Upstream key invalid; see `backend/README.md`.
+
 ### One Railway service for both
 
 Possible with a custom image (e.g. Express serving `build/web`), but not how this repo is set up out of the box.
