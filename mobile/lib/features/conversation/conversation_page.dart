@@ -36,13 +36,13 @@ class ConversationPage extends StatefulWidget {
 class _ConversationPageState extends State<ConversationPage> {
   late final ConversationController _controller;
   static const _backendFromEnv = String.fromEnvironment('BACKEND_BASE_URL');
-  /// Local emulator/host port when `BACKEND_BASE_URL` is unset. Must match `listenFallback` in `backend/src/server.ts` unless you override.
+  /// Local emulator/host port when `BACKEND_BASE_URL` is unset. Match `localDevPortFallback` in `backend/src/server.ts` unless you override with `--dart-define=BACKEND_DEV_PORT`.
   static const _backendDevPort =
       String.fromEnvironment('BACKEND_DEV_PORT', defaultValue: '3000');
 
   String get _backendBaseUrl {
     if (_backendFromEnv.isNotEmpty) {
-      return _backendFromEnv;
+      return normalizeBackendBaseUrl(_backendFromEnv);
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
       return 'http://10.0.2.2:$_backendDevPort';
@@ -56,7 +56,7 @@ class _ConversationPageState extends State<ConversationPage> {
     if (kIsWeb && _backendFromEnv.isEmpty) {
       debugPrint(
         'JoeTalk: BACKEND_BASE_URL was not set at build time. Production web '
-        'must use --dart-define=BACKEND_BASE_URL=https://<your-api>.up.railway.app '
+        'must use --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app '
         '(Railway web service variable BACKEND_BASE_URL for Docker builds).',
       );
     }

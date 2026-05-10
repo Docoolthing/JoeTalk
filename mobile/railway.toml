@@ -2,7 +2,7 @@
 # In Railway → this *web* service → Settings: Root directory = `mobile`
 #
 # Variables (required at image build time):
-#   BACKEND_BASE_URL — backend HTTPS origin, e.g. https://xxx.up.railway.app (no trailing slash)
+#   BACKEND_BASE_URL — production API: https://jobtalk-api.up.railway.app (no trailing slash)
 
 [build]
 builder = "DOCKERFILE"

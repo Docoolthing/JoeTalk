@@ -15,7 +15,7 @@ Chinese voice tutor mobile app using Flutter + Gemini (through a secure backend 
    - `npm --prefix backend install` (or `cd backend && npm install`)
    - `npm --prefix backend run dev`
 
-The server binds to `process.env.PORT` if set; otherwise it uses the dev fallback in `backend/src/server.ts` (see `listenFallback`).
+The server uses **`process.env.PORT`** when set (**Railway always sets this**). For local `npm run dev` without `PORT`, see `localDevPortFallback` in `backend/src/server.ts`.
 
 ## Mobile (local)
 
@@ -35,23 +35,23 @@ Use **one Railway project** and **two services**, both pointing at this reposito
 | **API** | `backend` | `backend/railway.toml` — Nixpacks, `npm run build` / `npm start` |
 | **Web** | `mobile` | `mobile/railway.toml` — Dockerfile, Flutter web + `serve` |
 
-Each service gets its own **`https://…up.railway.app`** URL. Clients use that **HTTPS origin only** (no host port in the URL). Railway sets **`PORT`** inside each container; do **not** set **`PORT`** in the dashboard.
+Each service gets **`https://…up.railway.app`**. Use that origin only—**never append the container `PORT`** to the public URL. Railway maps HTTPS to `$PORT` inside the container automatically.
 
 ### Deploy the API
 
 1. **New project** on [Railway](https://railway.com/) → **Deploy from GitHub** → add a service.
 2. **Settings → Root directory:** `backend`.
 3. **Variables:** at least `GEMINI_API_KEY` (secret).
-4. Optional: `ALLOWED_ORIGINS=https://your-web.up.railway.app` (comma-separated; omit for permissive CORS while testing).
-5. Deploy → **Networking → public URL** → save as **`API_URL`** (no trailing slash).
+4. Optional: `ALLOWED_ORIGINS` set to your **web** app’s `https://…up.railway.app` origin after the web service exists (comma-separated; omit for permissive CORS while testing).
+5. Deploy → **Networking → public URL**. Production API for this project: **`https://jobtalk-api.up.railway.app`** (no trailing slash)—use as **`BACKEND_BASE_URL`** for mobile/web clients.
 
-Verify: `GET <API_URL>/health`, `POST <API_URL>/api/chat` with `{"studentMessage":"hi"}`.
+Verify: `GET https://jobtalk-api.up.railway.app/health`, `POST …/api/chat` with `{"studentMessage":"hi"}`.
 
 ### Deploy the Flutter web app
 
 1. **Add service** (same project) → same repository.
 2. **Root directory:** `mobile`.
-3. **Variables:** **`BACKEND_BASE_URL`** = **`API_URL`** (required at Docker **build** time).
+3. **Variables:** **`BACKEND_BASE_URL`** = `https://jobtalk-api.up.railway.app` (required at Docker **build** time; no trailing slash).
 4. Deploy → public URL for the site. If you use `ALLOWED_ORIGINS` on the API, set it to this web URL and redeploy the API.
 
 Templates: `backend/.env.example`, `mobile/env.deploy.example`.
@@ -60,7 +60,7 @@ Templates: `backend/.env.example`, `mobile/env.deploy.example`.
 
 ```bash
 cd mobile
-flutter build web --release --dart-define=BACKEND_BASE_URL=https://YOUR-API.up.railway.app
+flutter build web --release --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app
 ```
 
 ### One Railway service for both
@@ -71,8 +71,8 @@ Possible with a custom image (e.g. Express serving `build/web`), but not how thi
 
 ```bash
 cd mobile
-flutter run --dart-define=BACKEND_BASE_URL=https://your-api.up.railway.app
-flutter build appbundle --dart-define=BACKEND_BASE_URL=https://your-api.up.railway.app
+flutter run --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app
+flutter build appbundle --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app
 ```
 
 More detail: `backend/README.md`, `mobile/README.md`, `mobile/android/README.md`.

@@ -1,6 +1,5 @@
 # https://docs.railway.com/reference/config-as-code
-# Railway project → Service A (API): Root directory = `backend`
-# Same repo → Service B (web): Root directory = `mobile` (see mobile/railway.toml)
+# Service: API — Root directory `backend`. Railway sets PORT; do not override in Variables.
 
 [build]
 buildCommand = "npm run build"

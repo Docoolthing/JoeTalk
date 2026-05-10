@@ -26,9 +26,9 @@ Backend URL behavior:
 
 Use `flutter build appbundle` (Play Store) or `flutter build apk` after configuring signing. See [android/README.md](android/README.md) for `key.properties`, cleartext / HTTPS, and `BACKEND_BASE_URL` with `--dart-define`.
 
-**Hosted backend (e.g. Railway):** use **HTTPS** in release with **no** trailing slash:
+**Hosted backend (jobtalk-api on Railway):** use **HTTPS** with **no** trailing slash:
 
-`flutter build apk --release --dart-define=BACKEND_BASE_URL=https://your-api.up.railway.app`
+`flutter build apk --release --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app`
 
 ## Flutter web on Railway
 

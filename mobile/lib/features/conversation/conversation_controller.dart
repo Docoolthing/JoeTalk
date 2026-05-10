@@ -8,6 +8,15 @@ import '../../services/debug_log_service.dart';
 import '../../services/stt_service.dart';
 import '../../services/tts_service.dart';
 
+/// Trims and removes a trailing `/` so `…/api/chat` is never `…//api/chat`.
+String normalizeBackendBaseUrl(String url) {
+  final t = url.trim();
+  if (t.isEmpty) {
+    return t;
+  }
+  return t.endsWith('/') ? t.substring(0, t.length - 1) : t;
+}
+
 enum ConversationState { idle, listening, processing, speaking, error }
 
 class ChatMessage {
@@ -28,7 +37,7 @@ class ConversationController extends ChangeNotifier {
     http.Client? httpClient,
   })  : _sttService = sttService,
         _ttsService = ttsService,
-        _backendBaseUrl = backendBaseUrl,
+        _backendBaseUrl = normalizeBackendBaseUrl(backendBaseUrl),
         _httpClient = httpClient ?? http.Client(),
         _ownsHttpClient = httpClient == null {
     _sttService.onFinalText = _handleFinalTranscript;
