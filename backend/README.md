@@ -1,5 +1,7 @@
 # JoeTalk Backend Proxy (Node + TypeScript)
 
+Monorepo root: [github.com/Docoolthing/JoeTalk](https://github.com/Docoolthing/JoeTalk).
+
 Backend proxy skeleton for Gemini tutor responses.
 
 ## Current Scope

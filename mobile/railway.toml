@@ -1,8 +1,8 @@
 # https://docs.railway.com/reference/config-as-code
 # In Railway → this *web* service → Settings: Root directory = `mobile`
 #
-# Variables (required at image build time):
-#   BACKEND_BASE_URL — production API: https://jobtalk-api.up.railway.app (no trailing slash)
+# Variables (runtime — required when the container starts):
+#   BACKEND_BASE_URL — production API, e.g. https://jobtalk-api.up.railway.app (trailing / OK)
 
 [build]
 builder = "DOCKERFILE"

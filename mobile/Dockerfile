@@ -1,40 +1,37 @@
 # JoeTalk Flutter web — deploy on Railway (or any Docker host).
-# Build-arg BACKEND_BASE_URL must match your *backend* service public HTTPS URL (no trailing slash).
-# Railway: add variable BACKEND_BASE_URL to the *web* service; Docker will receive it as a build ARG.
+# Runtime: set BACKEND_BASE_URL on the container (Railway Variables). The entrypoint writes
+# web/runtime-config.js so the SPA picks up the API URL without compile-time docker build-args.
+# Optional: pass BACKEND_BASE_URL as a build-arg to also bake it via --dart-define (not required).
 
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 
-# Flutter warns if the tool runs as root; use an unprivileged account for all `flutter` commands.
-RUN useradd -m -u 1001 app \
-  && mkdir -p /app \
-  && chown app:app /app
-
 WORKDIR /app
-USER app
-ENV HOME=/home/app
 
-# Flutter runs `git` against the SDK tree (owned by root in this image). Git 2.35+ blocks that unless
-# the directory is marked safe for this user (“dubious ownership”).
-RUN git config --global --add safe.directory /sdks/flutter
+# Run Flutter as root in this stage so tools can write the SDK cache under /sdks/flutter (owned by
+# root in the base image). The final runtime image still serves static files as a non-root user.
 
-# Only pubspec.yaml is required here; lockfile may be absent from CI context (e.g. if not
-# committed). `flutter pub get` resolves dependencies and writes pubspec.lock in-image.
-COPY --chown=app:app pubspec.yaml ./
+COPY pubspec.yaml ./
 RUN flutter pub get
 
-COPY --chown=app:app . .
+COPY . .
 RUN flutter pub get
 
-ARG BACKEND_BASE_URL
-RUN test -n "$BACKEND_BASE_URL" || (echo "BUILD FAILED: set BACKEND_BASE_URL (Railway Variable or docker build --build-arg)" >&2 && exit 1)
-RUN flutter build web --release --dart-define=BACKEND_BASE_URL="${BACKEND_BASE_URL}"
+ARG BACKEND_BASE_URL=
+RUN set -e; \
+  opts=""; \
+  if [ -n "$BACKEND_BASE_URL" ]; then \
+    opts="--dart-define=BACKEND_BASE_URL=${BACKEND_BASE_URL}"; \
+  fi; \
+  flutter build web --release --no-wasm-dry-run $opts
 
 FROM node:22-alpine
 RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs nodejs
 RUN npm install -g serve@14
 WORKDIR /srv
+COPY docker-entrypoint.sh /srv/docker-entrypoint.sh
+RUN chmod +x /srv/docker-entrypoint.sh
 COPY --from=build --chown=nodejs:nodejs /app/build/web ./web
 USER nodejs
 ENV NODE_ENV=production
 EXPOSE 8080
-CMD ["sh", "-c", "exec serve -s web -l tcp://0.0.0.0:${PORT:-8080}"]
+CMD ["/srv/docker-entrypoint.sh"]

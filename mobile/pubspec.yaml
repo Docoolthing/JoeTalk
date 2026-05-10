@@ -1,5 +1,6 @@
 name: joe_talk_mobile
 description: English voice tutor app using Gemini backend proxy.
+repository: https://github.com/Docoolthing/JoeTalk
 publish_to: "none"
 version: 1.0.0+1
 

@@ -2,6 +2,10 @@
   "name": "joe-talk-backend",
   "version": "1.0.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Docoolthing/JoeTalk.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"

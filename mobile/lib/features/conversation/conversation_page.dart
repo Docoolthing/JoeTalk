@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../runtime_backend_url.dart';
 import '../../services/debug_log_service.dart';
 import '../../services/stt_service.dart';
 import '../../services/tts_service.dart';
@@ -41,6 +42,12 @@ class _ConversationPageState extends State<ConversationPage> {
       String.fromEnvironment('BACKEND_DEV_PORT', defaultValue: '3000');
 
   String get _backendBaseUrl {
+    if (kIsWeb) {
+      final injected = readRuntimeBackendBaseUrl();
+      if (injected != null && injected.isNotEmpty) {
+        return normalizeBackendBaseUrl(injected);
+      }
+    }
     if (_backendFromEnv.isNotEmpty) {
       return normalizeBackendBaseUrl(_backendFromEnv);
     }
@@ -53,11 +60,13 @@ class _ConversationPageState extends State<ConversationPage> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb && _backendFromEnv.isEmpty) {
+    if (kIsWeb &&
+        _backendFromEnv.isEmpty &&
+        (readRuntimeBackendBaseUrl() ?? '').isEmpty) {
       debugPrint(
-        'JoeTalk: BACKEND_BASE_URL was not set at build time. Production web '
-        'must use --dart-define=BACKEND_BASE_URL=https://jobtalk-api.up.railway.app '
-        '(Railway web service variable BACKEND_BASE_URL for Docker builds).',
+        'JoeTalk: No backend URL at build time (--dart-define=BACKEND_BASE_URL=…) '
+        'or runtime (runtime-config.js from BACKEND_BASE_URL in Docker). '
+        'Using local dev default.',
       );
     }
     DebugLogService.instance.addListener(_onDebugLogServiceChanged);

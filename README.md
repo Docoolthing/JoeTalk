@@ -2,6 +2,8 @@
 
 Chinese voice tutor mobile app using Flutter + Gemini (through a secure backend proxy).
 
+**Repository:** [github.com/Docoolthing/JoeTalk](https://github.com/Docoolthing/JoeTalk)
+
 ## Structure
 
 - `mobile/` Flutter app UI + voice flow
@@ -51,7 +53,7 @@ Verify: `GET https://jobtalk-api.up.railway.app/health`, `POST …/api/chat` wit
 
 1. **Add service** (same project) → same repository.
 2. **Root directory:** `mobile`.
-3. **Variables:** **`BACKEND_BASE_URL`** = `https://jobtalk-api.up.railway.app` (required at Docker **build** time; no trailing slash).
+3. **Variables:** **`BACKEND_BASE_URL`** = `https://jobtalk-api.up.railway.app` (required at container **runtime** for Docker; trailing slash optional).
 4. Deploy → public URL for the site. If you use `ALLOWED_ORIGINS` on the API, set it to this web URL and redeploy the API.
 
 Templates: `backend/.env.example`, `mobile/env.deploy.example`.
@@ -67,7 +69,7 @@ flutter build web --release --dart-define=BACKEND_BASE_URL=https://jobtalk-api.u
 
 Possible with a custom image (e.g. Express serving `build/web`), but not how this repo is set up out of the box.
 
-**Mobile / store builds** use **`API_URL`** via `--dart-define`:
+**Mobile / store builds** use **`BACKEND_BASE_URL`** via `--dart-define`:
 
 ```bash
 cd mobile
